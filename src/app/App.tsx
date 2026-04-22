@@ -276,6 +276,28 @@ function App() {
     }
   };
 
+  // ── Scaling logic for mobile preview ──────────────────────────────────────────
+  const [scale, setScale] = useState(1);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.offsetWidth - 32; // padding
+        const targetWidth = 794; // 210mm at 96dpi
+        if (containerWidth < targetWidth) {
+          setScale(containerWidth / targetWidth);
+        } else {
+          setScale(1);
+        }
+      }
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   // ── Render ────────────────────────────────────────────────────────────────────
 
   return (
@@ -294,6 +316,8 @@ function App() {
             overflow: visible !important;
             z-index: 9999 !important;
             background: #fff !important;
+            transform: none !important;
+            margin: 0 !important;
           }
           .no-print { display: none !important; }
         }
@@ -361,19 +385,18 @@ function App() {
               </p>
             </div>
             <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
-              <div className="overflow-auto max-h-[calc(100vh-200px)] bg-gray-100 p-4 md:p-8">
+              <div 
+                ref={containerRef}
+                className="overflow-x-hidden overflow-y-auto max-h-[calc(100vh-200px)] bg-gray-100 p-4 md:p-8"
+              >
                 {/* Responsive wrapper for A4 preview */}
-                <div className="flex justify-center min-w-fit">
+                <div className="flex justify-center w-full">
                   <div 
                     id="invoice-print-area" 
                     className="origin-top transition-transform duration-200 shadow-2xl" 
                     style={{
-                      transform: typeof window !== 'undefined' && window.innerWidth < 800 
-                        ? `scale(${Math.min(1, (window.innerWidth - 32) / 794)})` 
-                        : 'none',
-                      marginBottom: typeof window !== 'undefined' && window.innerWidth < 800 
-                        ? `-${794 * (1 - (window.innerWidth - 32) / 794)}px` 
-                        : '0',
+                      transform: scale < 1 ? `scale(${scale})` : 'none',
+                      marginBottom: scale < 1 ? `-${(1 - scale) * 1123}px` : '0', // 297mm height is approx 1123px
                     }}
                   >
                     <InvoicePreview
