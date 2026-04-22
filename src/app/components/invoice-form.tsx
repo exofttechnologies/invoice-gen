@@ -288,7 +288,7 @@ export function InvoiceForm({ formData, onFormChange }: InvoiceFormProps) {
                     <Trash2 className="w-4 h-4 text-red-600" />
                   </Button>
                 </div>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
                     <Label htmlFor={`qty-${item.id}`}>Quantity</Label>
                     <Input

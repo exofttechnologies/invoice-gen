@@ -302,33 +302,35 @@ function App() {
       <Toaster />
 
       {/* Header */}
-      <header className="no-print bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
-        <div className="max-w-[1800px] mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
+      <header className="no-print bg-white border-b border-gray-200 sticky top-0 z-20 shadow-sm">
+        <div className="max-w-[1800px] mx-auto px-4 md:px-6 py-4">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <FileText className="w-8 h-8" />
+              <div className="p-2 bg-black rounded-lg text-white">
+                <FileText className="w-6 h-6 md:w-8 md:h-8" />
+              </div>
               <div>
-                <h1 className="text-2xl font-bold">Invoice Generator</h1>
-                <p className="text-sm text-gray-600">
+                <h1 className="text-xl md:text-2xl font-bold">Invoice Generator</h1>
+                <p className="text-[10px] md:text-sm text-gray-600">
                   Create professional invoices instantly
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <Button onClick={handleNewInvoice} variant="outline">
-                <RefreshCw className="w-4 h-4 mr-2" />
-                New Invoice
+            <div className="flex flex-wrap items-center gap-2 md:gap-3 w-full md:w-auto">
+              <Button onClick={handleNewInvoice} variant="outline" size="sm" className="flex-1 md:flex-none">
+                <RefreshCw className="w-4 h-4 mr-1 md:mr-2" />
+                New
               </Button>
-              <Button onClick={handlePrint} variant="outline">
-                <Printer className="w-4 h-4 mr-2" />
+              <Button onClick={handlePrint} variant="outline" size="sm" className="flex-1 md:flex-none">
+                <Printer className="w-4 h-4 mr-1 md:mr-2" />
                 Print
               </Button>
-              <Button onClick={handleDownloadPDF} variant="default">
-                <Download className="w-4 h-4 mr-2" />
-                Download PDF
+              <Button onClick={handleDownloadPDF} variant="default" size="sm" className="flex-1 md:flex-none">
+                <Download className="w-4 h-4 mr-1 md:mr-2" />
+                Download
               </Button>
-              <Button onClick={handleShare} variant="outline">
-                <Share2 className="w-4 h-4 mr-2" />
+              <Button onClick={handleShare} variant="outline" size="sm" className="flex-1 md:flex-none">
+                <Share2 className="w-4 h-4 mr-1 md:mr-2" />
                 Share
               </Button>
             </div>
@@ -337,7 +339,7 @@ function App() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-[1800px] mx-auto px-6 py-8">
+      <main className="max-w-[1800px] mx-auto px-4 md:px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left Section - Form */}
           <div className="no-print space-y-6">
@@ -359,14 +361,27 @@ function App() {
               </p>
             </div>
             <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
-              <div className="overflow-auto max-h-[calc(100vh-200px)]">
-                {/* Print area wraps only the preview */}
-                <div id="invoice-print-area">
-                  <InvoicePreview
-                    ref={invoiceRef}
-                    formData={formData}
-                    calculations={calculations}
-                  />
+              <div className="overflow-auto max-h-[calc(100vh-200px)] bg-gray-100 p-4 md:p-8">
+                {/* Responsive wrapper for A4 preview */}
+                <div className="flex justify-center min-w-fit">
+                  <div 
+                    id="invoice-print-area" 
+                    className="origin-top transition-transform duration-200 shadow-2xl" 
+                    style={{
+                      transform: typeof window !== 'undefined' && window.innerWidth < 800 
+                        ? `scale(${Math.min(1, (window.innerWidth - 32) / 794)})` 
+                        : 'none',
+                      marginBottom: typeof window !== 'undefined' && window.innerWidth < 800 
+                        ? `-${794 * (1 - (window.innerWidth - 32) / 794)}px` 
+                        : '0',
+                    }}
+                  >
+                    <InvoicePreview
+                      ref={invoiceRef}
+                      formData={formData}
+                      calculations={calculations}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
