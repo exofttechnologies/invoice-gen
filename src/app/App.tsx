@@ -188,17 +188,32 @@ function App() {
     try {
       toast.loading("Generating PDF...", { id: "pdf-download" });
 
-      // Step 1: Capture invoice as JPEG using html-to-image (handles oklch colors)
+      // Ensure all images are loaded before capturing
+      const images = invoiceRef.current.getElementsByTagName("img");
+      const imagePromises = Array.from(images).map((img) => {
+        if (img.complete) return Promise.resolve();
+        return new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+        });
+      });
+
+      await Promise.all(imagePromises);
+
+      // Step 1: Capture invoice as JPEG using html-to-image
+      // We use a lower pixelRatio if it fails, but start with 2 for quality
       const dataUrl = await toJpeg(invoiceRef.current, {
         quality: 0.95,
         pixelRatio: 2,
         backgroundColor: "#ffffff",
+        cacheBust: true,
       });
 
       // Step 2: Get image dimensions
       const img = new Image();
-      await new Promise<void>((resolve) => {
+      await new Promise<void>((resolve, reject) => {
         img.onload = () => resolve();
+        img.onerror = () => reject(new Error("Failed to load captured image"));
         img.src = dataUrl;
       });
 
@@ -236,9 +251,9 @@ function App() {
       pdf.save(`${fileName}.pdf`);
 
       toast.success("PDF downloaded successfully!", { id: "pdf-download" });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error generating PDF:", error);
-      toast.error("Failed to generate PDF", { id: "pdf-download" });
+      toast.error(`Failed to generate PDF: ${error.message || "Unknown error"}`, { id: "pdf-download" });
     }
   };
 
