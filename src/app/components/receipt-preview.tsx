@@ -300,6 +300,18 @@ export const ReceiptPreview = forwardRef<HTMLDivElement, ReceiptPreviewProps>(
           </p>
         </div>
 
+        {/* Terms & Conditions */}
+        {formData.terms && (
+          <div className="mb-6">
+            <h3 className="font-bold text-sm mb-2">Terms & Conditions</h3>
+            <ul className="text-sm text-gray-700 space-y-1 list-disc list-inside">
+              {formData.terms.split("\n").filter(line => line.trim() !== "").map((term: string, index: number) => (
+                <li key={index}>{term}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {/* Authorized Signature */}
         <div className="mt-auto pt-6 border-t border-gray-300">
           <div className="flex justify-between items-end">

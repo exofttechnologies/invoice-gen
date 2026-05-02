@@ -162,6 +162,7 @@ function defaultReceiptData(): ReceiptFormData {
       date: todayStr(),
       status: "PAID",
     },
+    terms: "Thank you for your business. This is a computer generated receipt and does not require a physical signature.",
   };
 }
 

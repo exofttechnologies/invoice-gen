@@ -45,6 +45,7 @@ export interface ReceiptFormData {
     date: string;
     status: string;
   };
+  terms?: string;
 }
 
 interface ReceiptFormProps {
@@ -258,6 +259,20 @@ export function ReceiptForm({ formData, onFormChange }: ReceiptFormProps) {
             <Label>Payment Date</Label>
             <Input type="date" value={formData.paymentInfo.date} onChange={(e) => updateField("paymentInfo", "date", e.target.value)} />
           </div>
+        </div>
+      </Card>
+
+      {/* Terms & Conditions */}
+      <Card className="p-6">
+        <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">📝 Terms & Conditions</h2>
+        <div>
+          <Label>Terms (One per line)</Label>
+          <Textarea 
+            value={formData.terms || ""} 
+            onChange={(e) => onFormChange({ ...formData, terms: e.target.value })} 
+            rows={4} 
+            placeholder="Enter terms and conditions..."
+          />
         </div>
       </Card>
     </div>
