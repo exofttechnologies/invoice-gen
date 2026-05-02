@@ -5,7 +5,7 @@ import { ReceiptForm, ReceiptFormData } from "./components/receipt-form";
 import { ReceiptPreview } from "./components/receipt-preview";
 import { Button } from "./components/ui/button";
 import { Card } from "./components/ui/card";
-import { Download, Share2, FileText, RefreshCw, Printer, FileCheck, ArrowLeft } from "lucide-react";
+import { Download, Share2, FileText, RefreshCw, Printer, FileCheck, ArrowLeft, CloudUpload } from "lucide-react";
 import { toJpeg } from "html-to-image";
 import jsPDF from "jspdf";
 import { toast } from "sonner";
@@ -350,6 +350,87 @@ function App() {
     }
   };
 
+  const handleUploadPDF = async () => {
+    if (!invoiceRef.current) return;
+
+    try {
+      toast.loading("Uploading PDF to Google Drive...", { id: "pdf-upload" });
+
+      // Ensure all images are loaded before capturing
+      const images = invoiceRef.current.getElementsByTagName("img");
+      const imagePromises = Array.from(images).map((img) => {
+        if (img.complete) return Promise.resolve();
+        return new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+        });
+      });
+
+      await Promise.all(imagePromises);
+
+      const dataUrl = await toJpeg(invoiceRef.current, {
+        quality: 0.95,
+        pixelRatio: 2,
+        backgroundColor: "#ffffff",
+        cacheBust: true,
+      });
+
+      const img = new Image();
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error("Failed to load captured image"));
+        img.src = dataUrl;
+      });
+
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfPageHeight = pdf.internal.pageSize.getHeight();
+      const ratio = pdfWidth / img.naturalWidth;
+      const scaledHeight = img.naturalHeight * ratio;
+
+      let heightLeft = scaledHeight;
+      let position = 0;
+
+      pdf.addImage(dataUrl, "JPEG", 0, position, pdfWidth, scaledHeight);
+      heightLeft -= pdfPageHeight;
+
+      while (heightLeft > 0) {
+        position = heightLeft - scaledHeight;
+        pdf.addPage();
+        pdf.addImage(dataUrl, "JPEG", 0, position, pdfWidth, scaledHeight);
+        heightLeft -= pdfPageHeight;
+      }
+
+      // Generate the raw PDF Blob
+      const pdfBlob = pdf.output("blob");
+
+      // Send to our Vercel API function
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: pdfBlob,
+        headers: {
+          "Content-Type": "application/pdf"
+        }
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || "Failed to upload to Google Drive");
+      }
+
+      toast.success("PDF uploaded successfully to Google Drive!", { id: "pdf-upload" });
+    } catch (error: any) {
+      console.error("Error uploading PDF:", error);
+      toast.error(`Failed to upload: ${error.message || "Unknown error"}`, { id: "pdf-upload" });
+    }
+  };
+
   const handleShare = async () => {
     try {
       if (navigator.share) {
@@ -503,6 +584,10 @@ function App() {
               <Button onClick={handlePrint} variant="outline" size="sm" className="flex-1 md:flex-none">
                 <Printer className="w-4 h-4 mr-1 md:mr-2" />
                 Print
+              </Button>
+              <Button onClick={handleUploadPDF} variant="outline" size="sm" className="flex-1 md:flex-none">
+                <CloudUpload className="w-4 h-4 mr-1 md:mr-2" />
+                Upload
               </Button>
               <Button onClick={handleDownloadPDF} variant="default" size="sm" className="flex-1 md:flex-none">
                 <Download className="w-4 h-4 mr-1 md:mr-2" />
