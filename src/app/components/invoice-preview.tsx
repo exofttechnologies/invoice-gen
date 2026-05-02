@@ -145,24 +145,37 @@ export const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(
             </div>
             {/* TAX INVOICE - Top Right, smaller */}
             <div className="text-right">
-              <h1 className="text-lg font-bold tracking-wide">INVOICE</h1>
+              <h1 className="text-lg font-bold tracking-wide">
+                {formData.billType === "bill" ? "BILL" : "INVOICE"}
+                {formData.paid && (
+                  <span className="ml-2 text-green-600 text-base font-semibold">(PAID)</span>
+                )}
+              </h1>
             </div>
           </div>
 
-          {/* Invoice Number & Balance Due */}
+          {/* Invoice/Bill Number & Balance Due */}
           <div className="flex items-start justify-between mb-4">
             <div>
               <p className="text-sm text-gray-600">
-                # {formData.invoice.number || "INV-000001"}
+                # {formData.invoice.number || (formData.billType === "bill" ? "BILL-000001" : "INV-000001")}
               </p>
             </div>
             <div className="text-right">
-              <div className="bg-gray-100 px-3 py-1.5">
-                <p className="text-[10px] text-gray-600 mb-0.5">Balance Due</p>
-                <p className="text-lg font-bold">
-                  ₹{formatCurrency(calculations.balanceDue)}
-                </p>
-              </div>
+              {!formData.paid && (
+                <div className="bg-gray-100 px-3 py-1.5">
+                  <p className="text-[10px] text-gray-600 mb-0.5">Balance Due</p>
+                  <p className="text-lg font-bold">
+                    ₹{formatCurrency(calculations.balanceDue)}
+                  </p>
+                </div>
+              )}
+              {formData.paid && (
+                <div className="bg-green-100 px-3 py-1.5">
+                  <p className="text-[10px] text-green-700 mb-0.5">Paid</p>
+                  <p className="text-lg font-bold text-green-700">₹0.00</p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -314,7 +327,7 @@ export const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(
                   <span>Total</span>
                   <span>₹{formatCurrency(calculations.total)}</span>
                 </div>
-                {formData.payment.advance > 0 || formData.payment.payNow > 0 ? (
+                {!formData.paid && (formData.payment.advance > 0 || formData.payment.payNow > 0) ? (
                   <>
                     <div className="flex justify-between py-2 font-bold px-2" style={{ backgroundColor: "#1f2937", color: "#ffffff" }}>
                       <span>Balance Due Now</span>
@@ -327,10 +340,17 @@ export const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(
                       </div>
                     )}
                   </>
-                ) : (
+                ) : null}
+                {!formData.paid && !(formData.payment.advance > 0 || formData.payment.payNow > 0) && (
                   <div className="flex justify-between py-2 font-bold px-2" style={{ backgroundColor: "#1f2937", color: "#ffffff" }}>
                     <span>Balance Due</span>
                     <span>₹{formatCurrency(calculations.balanceDue)}</span>
+                  </div>
+                )}
+                {formData.paid && (
+                  <div className="flex justify-between py-2 font-bold px-2" style={{ backgroundColor: "#22c55e", color: "#fff" }}>
+                    <span>Paid</span>
+                    <span>₹0.00</span>
                   </div>
                 )}
               </div>

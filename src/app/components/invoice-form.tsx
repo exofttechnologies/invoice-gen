@@ -19,6 +19,13 @@ interface InvoiceFormProps {
 }
 
 export function InvoiceForm({ formData, onFormChange }: InvoiceFormProps) {
+  // Add billType and paid fields if not present
+  const updateBillType = (type: string) => {
+    onFormChange({ ...formData, billType: type });
+  };
+  const updatePaid = (paid: boolean) => {
+    onFormChange({ ...formData, paid });
+  };
   const updateField = (field: string, value: any) => {
     onFormChange({ ...formData, [field]: value });
   };
@@ -200,21 +207,40 @@ export function InvoiceForm({ formData, onFormChange }: InvoiceFormProps) {
         </div>
       </Card>
 
-      {/* Invoice Details */}
+      {/* Invoice/Bill Details */}
       <Card className="p-6">
-        <h2 className="text-lg font-semibold mb-4">Invoice Details</h2>
+        <h2 className="text-lg font-semibold mb-4">Document Details</h2>
         <div className="space-y-4">
+          <div className="flex gap-4 items-center">
+            <Label>Type:</Label>
+            <select
+              className="border rounded px-2 py-1"
+              value={formData.billType || "invoice"}
+              onChange={e => updateBillType(e.target.value)}
+            >
+              <option value="invoice">Invoice</option>
+              <option value="bill">Bill</option>
+            </select>
+            <label className="flex items-center gap-1 ml-6">
+              <input
+                type="checkbox"
+                checked={!!formData.paid}
+                onChange={e => updatePaid(e.target.checked)}
+              />
+              Mark as Paid
+            </label>
+          </div>
           <div>
-            <Label htmlFor="invoiceNumber">Invoice Number</Label>
+            <Label htmlFor="invoiceNumber">{formData.billType === "bill" ? "Bill Number" : "Invoice Number"}</Label>
             <Input
               id="invoiceNumber"
               value={formData.invoice.number}
               onChange={(e) => updateInvoiceField("number", e.target.value)}
-              placeholder="INV-000001"
+              placeholder={formData.billType === "bill" ? "BILL-000001" : "INV-000001"}
             />
           </div>
           <div>
-            <Label htmlFor="invoiceDate">Invoice Date</Label>
+            <Label htmlFor="invoiceDate">{formData.billType === "bill" ? "Bill Date" : "Invoice Date"}</Label>
             <Input
               id="invoiceDate"
               type="date"
@@ -246,7 +272,7 @@ export function InvoiceForm({ formData, onFormChange }: InvoiceFormProps) {
               id="subject"
               value={formData.invoice.subject}
               onChange={(e) => updateInvoiceField("subject", e.target.value)}
-              placeholder="Brief description of the invoice"
+              placeholder="Brief description of the document"
               rows={2}
             />
           </div>
