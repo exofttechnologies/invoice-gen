@@ -1,3 +1,47 @@
 @import './fonts.css';
 @import './tailwind.css';
 @import './theme.css';
+
+@media print {
+  @page {
+    size: auto;
+    margin: 10mm;
+  }
+  
+  html, body, #root {
+    height: auto !important;
+    overflow: visible !important;
+    background: transparent !important;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  body * {
+    visibility: hidden;
+  }
+  
+  #invoice-print-area, #invoice-print-area * {
+    visibility: visible !important;
+  }
+  
+  #invoice-print-area {
+    position: static !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+  
+  /* Make tables break nicely across pages if long */
+  table { page-break-inside: auto; }
+  tr    { page-break-inside: avoid; page-break-after: auto; }
+  thead { display: table-header-group; }
+  tfoot { display: table-footer-group; }
+  
+  .no-print { display: none !important; }
+}

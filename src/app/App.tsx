@@ -55,17 +55,11 @@ interface FormData {
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
 function generateInvoiceNumber(): string {
-  const current = parseInt(localStorage.getItem("invoice_counter") ?? "0", 10);
-  const next = current + 1;
-  localStorage.setItem("invoice_counter", String(next));
-  return `INV-${String(next).padStart(6, "0")}`;
+  return localStorage.getItem("last_invoice_number") || "INV-000001";
 }
 
 function generateReceiptNumber(): string {
-  const current = parseInt(localStorage.getItem("receipt_counter") ?? "0", 10);
-  const next = current + 1;
-  localStorage.setItem("receipt_counter", String(next));
-  return `REC-${String(next).padStart(6, "0")}`;
+  return localStorage.getItem("last_receipt_number") || "REC-000001";
 }
 
 function todayStr(): string {
@@ -216,10 +210,16 @@ function App() {
   // Auto-save drafts
   useEffect(() => {
     saveDraft(formData);
+    if (formData.invoice?.number) {
+      localStorage.setItem("last_invoice_number", formData.invoice.number);
+    }
   }, [formData]);
 
   useEffect(() => {
     saveReceiptDraft(receiptData);
+    if (receiptData.receipt?.number) {
+      localStorage.setItem("last_receipt_number", receiptData.receipt.number);
+    }
   }, [receiptData]);
 
   // ── Calculations ─────────────────────────────────────────────────────────────
@@ -536,25 +536,6 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <style>{`
-        @media print {
-          body * { visibility: hidden !important; }
-          #invoice-print-area,
-          #invoice-print-area * { visibility: visible !important; }
-          #invoice-print-area {
-            position: fixed !important;
-            inset: 0 !important;
-            width: 100% !important;
-            height: auto !important;
-            overflow: visible !important;
-            z-index: 9999 !important;
-            background: #fff !important;
-            transform: none !important;
-            margin: 0 !important;
-          }
-          .no-print { display: none !important; }
-        }
-      `}</style>
 
       <Toaster />
 
@@ -603,8 +584,8 @@ function App() {
         </div>
       </header>
 
-      <main className="max-w-[1800px] mx-auto px-4 md:px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <main className="max-w-[1800px] mx-auto px-4 md:px-6 py-8 print:p-0 print:m-0 print:max-w-none">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 print:block print:gap-0">
           {/* Left Section - Form */}
           <div className="no-print space-y-6">
             <div>
@@ -623,22 +604,22 @@ function App() {
           </div>
 
           {/* Right Section - Preview */}
-          <div className="lg:sticky lg:top-24 h-fit">
+          <div className="lg:sticky lg:top-24 h-fit print:static print:h-auto">
             <div className="no-print mb-4">
               <h2 className="text-xl font-semibold mb-2">Live Preview</h2>
               <p className="text-sm text-gray-600">
                 Live preview of your {mode === 'invoice' ? 'invoice' : 'receipt'}
               </p>
             </div>
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200 print:shadow-none print:border-none print:overflow-visible print:bg-transparent">
               <div 
                 ref={containerRef}
-                className="overflow-x-hidden overflow-y-auto max-h-[calc(100vh-200px)] bg-gray-100 p-4 md:p-8"
+                className="overflow-x-hidden overflow-y-auto max-h-[calc(100vh-200px)] bg-gray-100 p-4 md:p-8 print:p-0 print:max-h-none print:overflow-visible print:bg-transparent"
               >
-                <div className="flex justify-center w-full">
+                <div className="flex justify-center w-full print:block">
                   <div 
                     id="invoice-print-area" 
-                    className="origin-top transition-transform duration-200 shadow-2xl" 
+                    className="origin-top transition-transform duration-200 shadow-2xl print:shadow-none print:m-0" 
                     style={{
                       transform: scale < 1 ? `scale(${scale})` : 'none',
                       marginBottom: scale < 1 ? `-${(1 - scale) * 1123}px` : '0',
