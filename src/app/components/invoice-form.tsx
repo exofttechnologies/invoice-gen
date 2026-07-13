@@ -30,6 +30,31 @@ export function InvoiceForm({ formData, onFormChange }: InvoiceFormProps) {
     onFormChange({ ...formData, [field]: value });
   };
 
+  const updateVisibility = (key: string, visible: boolean) => {
+    onFormChange({
+      ...formData,
+      visibility: {
+        ...formData.visibility,
+        [key]: visible,
+      },
+    });
+  };
+
+  const renderVisibilityToggle = (key: string) => {
+    const isVisible = formData.visibility?.[key] !== false;
+    return (
+      <label className="flex items-center gap-1.5 text-xs text-gray-500 font-normal cursor-pointer hover:text-gray-700 select-none">
+        <input
+          type="checkbox"
+          checked={isVisible}
+          onChange={(e) => updateVisibility(key, e.target.checked)}
+          className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-3.5 w-3.5"
+        />
+        Show on preview
+      </label>
+    );
+  };
+
   const updateCompanyField = (field: string, value: any) => {
     onFormChange({
       ...formData,
@@ -104,7 +129,10 @@ export function InvoiceForm({ formData, onFormChange }: InvoiceFormProps) {
         <h2 className="text-lg font-semibold mb-4">Company Details</h2>
         <div className="space-y-4">
           <div>
-            <Label htmlFor="logo">Company Logo</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="logo">Company Logo</Label>
+              {renderVisibilityToggle("logo")}
+            </div>
             <div className="mt-2 flex items-center gap-3">
               <input
                 type="file"
@@ -141,7 +169,10 @@ export function InvoiceForm({ formData, onFormChange }: InvoiceFormProps) {
             />
           </div>
           <div>
-            <Label htmlFor="companyAddress">Address</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="companyAddress">Address</Label>
+              {renderVisibilityToggle("companyAddress")}
+            </div>
             <Textarea
               id="companyAddress"
               value={formData.company.address}
@@ -160,7 +191,10 @@ export function InvoiceForm({ formData, onFormChange }: InvoiceFormProps) {
             />
           </div>
           <div>
-            <Label htmlFor="companyEmail">Email</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="companyEmail">Email</Label>
+              {renderVisibilityToggle("companyEmail")}
+            </div>
             <Input
               id="companyEmail"
               type="email"
@@ -186,7 +220,10 @@ export function InvoiceForm({ formData, onFormChange }: InvoiceFormProps) {
             />
           </div>
           <div>
-            <Label htmlFor="clientAddress">Client Address</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="clientAddress">Client Address</Label>
+              {renderVisibilityToggle("clientAddress")}
+            </div>
             <Textarea
               id="clientAddress"
               value={formData.client.address}
@@ -196,7 +233,10 @@ export function InvoiceForm({ formData, onFormChange }: InvoiceFormProps) {
             />
           </div>
           <div>
-            <Label htmlFor="clientContact">Contact Details</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="clientContact">Contact Details</Label>
+              {renderVisibilityToggle("clientContact")}
+            </div>
             <Input
               id="clientContact"
               value={formData.client.contact}
@@ -267,7 +307,10 @@ export function InvoiceForm({ formData, onFormChange }: InvoiceFormProps) {
             />
           </div>
           <div>
-            <Label htmlFor="subject">Subject</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="subject">Subject</Label>
+              {renderVisibilityToggle("subject")}
+            </div>
             <Textarea
               id="subject"
               value={formData.invoice.subject}
@@ -366,7 +409,10 @@ export function InvoiceForm({ formData, onFormChange }: InvoiceFormProps) {
         <h2 className="text-lg font-semibold mb-4">Payment Summary</h2>
         <div className="space-y-4">
           <div>
-            <Label htmlFor="discount">Discount (%)</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="discount">Discount (%)</Label>
+              {renderVisibilityToggle("discount")}
+            </div>
             <Input
               id="discount"
               type="number"
@@ -382,7 +428,10 @@ export function InvoiceForm({ formData, onFormChange }: InvoiceFormProps) {
             />
           </div>
           <div>
-            <Label htmlFor="advance">Advance Payment</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="advance">Advance Payment</Label>
+              {renderVisibilityToggle("advance")}
+            </div>
             <Input
               id="advance"
               type="number"
@@ -398,7 +447,10 @@ export function InvoiceForm({ formData, onFormChange }: InvoiceFormProps) {
             />
           </div>
           <div>
-            <Label htmlFor="payNow">Pay Now Amount</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="payNow">Pay Now Amount</Label>
+              {renderVisibilityToggle("payNow")}
+            </div>
             <Input
               id="payNow"
               type="number"
@@ -414,7 +466,28 @@ export function InvoiceForm({ formData, onFormChange }: InvoiceFormProps) {
             />
           </div>
           <div>
-            <Label htmlFor="tax">Tax (%)</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="balanceAfterDeploymentLabel">Balance After Deployment Label</Label>
+              {renderVisibilityToggle("balanceAfterDeployment")}
+            </div>
+            <Input
+              id="balanceAfterDeploymentLabel"
+              type="text"
+              value={formData.payment.balanceAfterDeploymentLabel ?? "Balance After Deployment"}
+              onChange={(e) =>
+                updateField("payment", {
+                  ...formData.payment,
+                  balanceAfterDeploymentLabel: e.target.value,
+                })
+              }
+              placeholder="Balance After Deployment"
+            />
+          </div>
+          <div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="tax">Tax (%)</Label>
+              {renderVisibilityToggle("tax")}
+            </div>
             <Input
               id="tax"
               type="number"
@@ -437,7 +510,10 @@ export function InvoiceForm({ formData, onFormChange }: InvoiceFormProps) {
         <h2 className="text-lg font-semibold mb-4">Additional Information</h2>
         <div className="space-y-4">
           <div>
-            <Label htmlFor="notes">Notes</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="notes">Notes</Label>
+              {renderVisibilityToggle("notes")}
+            </div>
             <Textarea
               id="notes"
               value={formData.notes}
@@ -447,7 +523,10 @@ export function InvoiceForm({ formData, onFormChange }: InvoiceFormProps) {
             />
           </div>
           <div>
-            <Label htmlFor="terms">Terms & Conditions</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="terms">Terms & Conditions</Label>
+              {renderVisibilityToggle("terms")}
+            </div>
             <Textarea
               id="terms"
               value={formData.terms}

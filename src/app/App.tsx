@@ -45,11 +45,27 @@ interface FormData {
     advance: number;
     payNow: number;
     tax: number;
+    balanceAfterDeploymentLabel?: string;
   };
   notes: string;
   terms: string;
   billType?: string;
   paid?: boolean;
+  visibility?: {
+    logo?: boolean;
+    companyAddress?: boolean;
+    companyEmail?: boolean;
+    clientAddress?: boolean;
+    clientContact?: boolean;
+    subject?: boolean;
+    discount?: boolean;
+    tax?: boolean;
+    advance?: boolean;
+    payNow?: boolean;
+    balanceAfterDeployment?: boolean;
+    notes?: boolean;
+    terms?: boolean;
+  };
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
@@ -107,11 +123,27 @@ function defaultFormData(): FormData {
       advance: 0,
       payNow: 0,
       tax: 0,
+      balanceAfterDeploymentLabel: "Balance After Deployment",
     },
     notes: `Advance payment of ₹15,000 received before development.\nDevelopment phase is completed.\nClient must pay ₹25,000 now.\nRemaining ₹20,000 will be paid after app deployment.\nFinal source code and deployment credentials will be provided after full payment.`,
     terms: `Balance payment must be cleared within the agreed time after receiving this invoice.\nFinal source code, application build, and deployment credentials will be provided only after full payment.\nAny additional features or changes outside the agreed scope may require extra charges.\nApp cost includes UI/UX design, frontend, backend development, and Play Store deployment.\nServer hosting, domain, and cloud service charges are not included and will be billed separately.\nMaintenance or support after delivery may require additional charges depending on the request.`,
     billType: "invoice",
     paid: false,
+    visibility: {
+      logo: true,
+      companyAddress: true,
+      companyEmail: true,
+      clientAddress: true,
+      clientContact: true,
+      subject: true,
+      discount: true,
+      tax: true,
+      advance: true,
+      payNow: true,
+      balanceAfterDeployment: true,
+      notes: true,
+      terms: true,
+    },
   };
 }
 

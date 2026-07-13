@@ -135,7 +135,7 @@ export const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(
           <div className="flex items-start justify-between mb-4">
             {/* Company Logo - Top Left */}
             <div className="flex-1">
-              {formData.company.logo && (
+              {(formData.company.logo && formData.visibility?.logo !== false) && (
                 <img
                   src={formData.company.logo}
                   alt="Company Logo"
@@ -185,10 +185,12 @@ export const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(
               <h3 className="font-bold text-sm mb-0.5">
                 {formData.company.name || "Company Name"}
               </h3>
-              <div className="text-xs text-gray-700 whitespace-pre-line">
-                {formData.company.address || "Company Address"}
-              </div>
-              {formData.company.email && (
+              {formData.visibility?.companyAddress !== false && (
+                <div className="text-xs text-gray-700 whitespace-pre-line">
+                  {formData.company.address || "Company Address"}
+                </div>
+              )}
+              {(formData.company.email && formData.visibility?.companyEmail !== false) && (
                 <p className="text-xs text-gray-700 mt-0.5">
                   {formData.company.email}
                 </p>
@@ -219,15 +221,20 @@ export const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(
             <p className="font-bold text-sm">
               {formData.client.name || "Client Name"}
             </p>
-            {formData.client.address && (
+            {(formData.client.address && formData.visibility?.clientAddress !== false) && (
               <p className="text-xs text-gray-700 whitespace-pre-line">
                 {formData.client.address}
+              </p>
+            )}
+            {(formData.client.contact && formData.visibility?.clientContact !== false) && (
+              <p className="text-xs text-gray-700 mt-1">
+                Contact: {formData.client.contact}
               </p>
             )}
           </div>
 
           {/* Subject */}
-          {formData.invoice.subject && (
+          {(formData.invoice.subject && formData.visibility?.subject !== false) && (
             <div className="mb-3">
               <p className="text-[10px] text-gray-600 mb-0.5">Subject :</p>
               <p className="text-xs">{formData.invoice.subject}</p>
@@ -295,7 +302,7 @@ export const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(
                   <span className="text-gray-700">Sub Total</span>
                   <span>{formatCurrency(calculations.subtotal)}</span>
                 </div>
-                {formData.payment.discount > 0 && (
+                {(formData.payment.discount > 0 && formData.visibility?.discount !== false) && (
                   <div className="flex justify-between py-1 border-b border-gray-300">
                     <span className="text-gray-700">
                       Discount ({formData.payment.discount}%)
@@ -303,7 +310,7 @@ export const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(
                     <span>(-) {formatCurrency(calculations.discountAmount)}</span>
                   </div>
                 )}
-                {formData.payment.tax > 0 && (
+                {(formData.payment.tax > 0 && formData.visibility?.tax !== false) && (
                   <div className="flex justify-between py-1 border-b border-gray-300">
                     <span className="text-gray-700">
                       Tax ({formData.payment.tax}%)
@@ -311,13 +318,13 @@ export const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(
                     <span>{formatCurrency(calculations.taxAmount)}</span>
                   </div>
                 )}
-                {formData.payment.advance > 0 && (
+                {(formData.payment.advance > 0 && formData.visibility?.advance !== false) && (
                   <div className="flex justify-between py-1 border-b border-gray-300">
                     <span className="text-gray-700">Advance Paid</span>
                     <span>(-) {formatCurrency(formData.payment.advance)}</span>
                   </div>
                 )}
-                {formData.payment.payNow > 0 && (
+                {(formData.payment.payNow > 0 && formData.visibility?.payNow !== false) && (
                   <div className="flex justify-between py-1 border-b border-gray-300">
                     <span className="text-gray-700">Pay Now</span>
                     <span>(-) {formatCurrency(formData.payment.payNow)}</span>
@@ -327,15 +334,17 @@ export const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(
                   <span>Total</span>
                   <span>₹{formatCurrency(calculations.total)}</span>
                 </div>
-                {!formData.paid && (formData.payment.advance > 0 || formData.payment.payNow > 0) ? (
+                {!formData.paid && ((formData.payment.advance > 0 && formData.visibility?.advance !== false) || (formData.payment.payNow > 0 && formData.visibility?.payNow !== false)) ? (
                   <>
-                    <div className="flex justify-between py-2 font-bold px-2" style={{ backgroundColor: "#1f2937", color: "#ffffff" }}>
-                      <span>Balance Due Now</span>
-                      <span>₹{formatCurrency(calculations.payNow)}</span>
-                    </div>
-                    {calculations.balanceAfterDeployment > 0 && (
+                    {(formData.payment.payNow > 0 && formData.visibility?.payNow !== false) && (
+                      <div className="flex justify-between py-2 font-bold px-2" style={{ backgroundColor: "#1f2937", color: "#ffffff" }}>
+                        <span>Balance Due Now</span>
+                        <span>₹{formatCurrency(calculations.payNow)}</span>
+                      </div>
+                    )}
+                    {(calculations.balanceAfterDeployment > 0 && formData.visibility?.balanceAfterDeployment !== false) && (
                       <div className="flex justify-between py-2 font-semibold px-2 text-sm" style={{ backgroundColor: "#fef3c7", color: "#92400e" }}>
-                        <span>Balance After Deployment</span>
+                        <span>{formData.payment.balanceAfterDeploymentLabel || "Balance After Deployment"}</span>
                         <span>₹{formatCurrency(calculations.balanceAfterDeployment)}</span>
                       </div>
                     )}
@@ -369,7 +378,7 @@ export const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(
         </div>
 
         {/* Notes */}
-        {formData.notes && (
+        {(formData.notes && formData.visibility?.notes !== false) && (
           <div className="mb-6">
             <h3 className="font-bold text-sm mb-2">Notes</h3>
             <p className="text-sm text-gray-700 whitespace-pre-line">
@@ -379,7 +388,7 @@ export const InvoicePreview = forwardRef<HTMLDivElement, InvoicePreviewProps>(
         )}
 
         {/* Terms & Conditions */}
-        {formData.terms && termsArray.length > 0 && (
+        {(formData.terms && termsArray.length > 0 && formData.visibility?.terms !== false) && (
           <div className="mb-6">
             <h3 className="font-bold text-sm mb-2">Terms & Conditions</h3>
             <ol className="text-sm text-gray-700 space-y-1 list-decimal list-inside">
